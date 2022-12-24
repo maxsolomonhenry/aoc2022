@@ -44,7 +44,38 @@ char getCommonLetter(std::set<char> one, std::set<char> two)
 }
 
 
+char getGroupCommonLetter(std::vector<std::string> groupRucksacks)
+{
+    std::vector<std::set<char>> sets;
+
+    for (auto rucksack : groupRucksacks)
+        sets.push_back(std::set<char>(rucksack.begin(), rucksack.end()));
+
+    std::vector<char> commonChars;
+    std::set<char> commonSet = sets[0];
+
+    for (int i = 1; i < groupRucksacks.size(); ++i) 
+    {
+
+        std::set<char>& thisSet = sets[i];
+
+        std::set_intersection(
+            thisSet.begin(), thisSet.end(),
+            commonSet.begin(), commonSet.end(),
+            std::back_inserter(commonChars));
+
+        commonSet = std::set<char>(commonChars.begin(), commonChars.end());
+        commonChars.clear();
+    }
+
+    // Return only element in the set.
+    return *commonSet.begin();
+}
+
+
 int main() {
+
+    const int kNumElvesPerGroup = 3;
 
     const std::string fpath = "input/3.txt";
 
@@ -52,16 +83,19 @@ int main() {
     readFile(fpath, lines);
 
     int totalSum = 0;
+    std::vector<std::string> groupRucksacks;
     for (auto line : lines)
     {
-        auto [one, two] = splitInHalf(line);
+        groupRucksacks.push_back(line);
 
-        std::set<char> uniqueOne(one.begin(), one.end());
-        std::set<char> uniqueTwo(two.begin(), two.end());
+        if (groupRucksacks.size() < kNumElvesPerGroup)
+            continue;
 
-        char commonLetter = getCommonLetter(uniqueOne, uniqueTwo);
-        
+        char commonLetter = getGroupCommonLetter(groupRucksacks);
         totalSum += getScore(commonLetter);
+
+        groupRucksacks.clear();
+
     }
 
     std::cout << "Total sum: " << totalSum << "\n";
