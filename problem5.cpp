@@ -86,21 +86,28 @@ int main() {
 
 
     // Follow instructions.
+    std::vector<char> buffer;
     for (int i = lineCtr + 1; i < lines.size(); ++i)
     {
         std::string line = lines[i];
 
         auto [numToMove, stackFrom, stackTo] = parseLine(line);
 
+        buffer.clear();
         for (int j = 0; j < numToMove; ++j)
         {
             char toMove = allStacks[stackFrom].back();
             allStacks[stackFrom].pop_back();
 
-            allStacks[stackTo].push_back(toMove);
+            buffer.push_back(toMove);
         }
 
-        std::cout << line << "\n";
+        std::reverse(buffer.begin(), buffer.end());
+        for (auto item : buffer)
+        {
+            allStacks[stackTo].push_back(item);
+        }
+
     }
 
     for (auto stack : allStacks)
