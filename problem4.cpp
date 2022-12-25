@@ -47,6 +47,14 @@ bool isContainedIn(const SectionAssignment& a, const SectionAssignment& b)
 }
 
 
+bool isOverlap(const SectionAssignment& a, const SectionAssignment& b)
+{
+    bool one = (a.start <= b.start && a.end >= b.start);
+    bool two = (b.start <= a.start && b.end >= a.start);
+    return (one || two);
+}
+
+
 int main() {
 
     const std::string fpath = "input/4.txt";
@@ -58,7 +66,7 @@ int main() {
     {
         auto [a, b] = getSectionAssignments(line);
         
-        if (isContainedIn(a, b) || isContainedIn(b, a))
+        if (isOverlap(a, b))
             ++ctr;
 
     }
