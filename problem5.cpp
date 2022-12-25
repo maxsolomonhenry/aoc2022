@@ -1,4 +1,5 @@
 #include <vector>
+#include <sstream>
 #include <string>
 #include "util.h"
 
@@ -28,6 +29,27 @@ void updateStacks(std::vector<std::vector<char>>& allStacks, const std::string& 
 bool isStackLabels(const std::string& line)
 {
     return (line[1] == '1');
+}
+
+
+std::tuple<int, int, int> parseLine(const std::string& line)
+{
+
+    std::istringstream ss(line);
+    std::string token;
+    std::vector<std::string> tokens;
+
+    while(std::getline(ss, token, ' '))
+    {
+        tokens.push_back(token);
+    }
+
+
+    int numToMove = std::stoi(tokens[1]);
+    int stackFrom = std::stoi(tokens[3]) - 1;
+    int stackTo = std::stoi(tokens[5]) - 1;
+
+    return {numToMove, stackFrom, stackTo};
 }
 
 
@@ -67,8 +89,23 @@ int main() {
     for (int i = lineCtr + 1; i < lines.size(); ++i)
     {
         std::string line = lines[i];
-        
+
+        auto [numToMove, stackFrom, stackTo] = parseLine(line);
+
+        for (int j = 0; j < numToMove; ++j)
+        {
+            char toMove = allStacks[stackFrom].back();
+            allStacks[stackFrom].pop_back();
+
+            allStacks[stackTo].push_back(toMove);
+        }
+
         std::cout << line << "\n";
+    }
+
+    for (auto stack : allStacks)
+    {
+        std::cout << stack.back();
     }
 
     return 1;
