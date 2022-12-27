@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 
 bool readFile(const std::string& fpath, std::vector<std::string>& lines)
