@@ -82,8 +82,6 @@ int main() {
         {
             std::cout << "Start-of-packet: " << charCtr << "\n";
         }
-
-        
     }
 
     return 1;
