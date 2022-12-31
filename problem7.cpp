@@ -141,7 +141,7 @@ int getFileSize(const std::string& line)
 }
 
 
-int solve(std::shared_ptr<Directory> root)
+int solvePartOne(std::shared_ptr<Directory> root)
 {
     const int kSizeLimit = 100000;
 
@@ -151,12 +151,27 @@ int solve(std::shared_ptr<Directory> root)
         if (child->getSize() <= kSizeLimit)
             totalSize += child->getSize();
 
-        totalSize += solve(child);
+        totalSize += solvePartOne(child);
     }
 
     return totalSize;
 }
 
+
+int solvePartTwo(std::shared_ptr<Directory> root, int currentBest)
+{
+    const int kMinSize = 358913;
+
+    for (auto child : root->getChildren())
+    {
+        if (child->getSize() >= kMinSize && child->getSize() < currentBest)
+            currentBest = child->getSize();
+
+        currentBest = solvePartTwo(child, currentBest);
+    }
+
+    return currentBest;
+}
 
 
 int main() {
@@ -198,6 +213,7 @@ int main() {
         }
     }
 
-    std::cout << "Answer: " << solve(root) << "\n";
+    std::cout << "Part 1: " << solvePartOne(root) << "\n";
+    std::cout << "Part 2: " << solvePartTwo(root, INT_MAX) << "\n";
     return 1;
 }
