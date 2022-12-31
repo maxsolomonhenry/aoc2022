@@ -34,7 +34,7 @@ InputType identifyInputType(const std::string& line)
 }
 
 
-std::string getDirName(const std::string& line)
+std::string readDirName(const std::string& line)
 {
     return line.substr(5, line.length());
 }
@@ -130,7 +130,7 @@ private:
 };
 
 
-int getFileSize(const std::string& line)
+int readFileSize(const std::string& line)
 {
     std::string tmp = line.substr(0, line.find(" "));
 
@@ -191,7 +191,7 @@ int main() {
         switch (identifyInputType(line))
         {
             case InputType::cd:
-                dirName = getDirName(line);
+                dirName = readDirName(line);
 
                 if (dirName == "..")
                     currentDir = currentDir->getParent();
@@ -204,7 +204,7 @@ int main() {
                 break;
 
             case InputType::info:
-                size = getFileSize(line);
+                size = readFileSize(line);
                 currentDir->addFileSize(size);
                 break;
 
