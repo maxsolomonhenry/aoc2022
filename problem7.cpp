@@ -64,9 +64,19 @@ public:
         return parent;
     }
 
+    std::vector<std::shared_ptr<Directory>> getChildren()
+    {
+        return children;
+    }
+
     std::string getName()
     {
         return name;
+    }
+
+    int getSize()
+    {
+        return size;
     }
 
     void addFileSize(int size)
@@ -131,6 +141,24 @@ int getFileSize(const std::string& line)
 }
 
 
+int solve(std::shared_ptr<Directory> root)
+{
+    const int kSizeLimit = 100000;
+
+    int totalSize = 0;
+    for (auto child : root->getChildren())
+    {
+        if (child->getSize() <= kSizeLimit)
+            totalSize += child->getSize();
+
+        totalSize += solve(child);
+    }
+
+    return totalSize;
+}
+
+
+
 int main() {
 
     const std::string fpath = "input/7.txt";
@@ -170,6 +198,6 @@ int main() {
         }
     }
 
-    root->print();
+    std::cout << "Answer: " << solve(root) << "\n";
     return 1;
 }
