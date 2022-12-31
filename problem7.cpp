@@ -40,52 +40,96 @@ std::string getDirName(const std::string& line)
 }
 
 
-struct Directory
+class Directory : public std::enable_shared_from_this<Directory>
 {
-    Directory* parent;
+public:
+    Directory(const std::string& name) : name(name) 
+    {
+        parent = nullptr;
+        size = 0;
+    }
+
+    std::shared_ptr<Directory> getSubDir(const std::string& name)
+    {
+        std::shared_ptr<Directory> subdir = findSubDir(name);
+
+        if (subdir != nullptr)
+            return subdir;
+        else
+            return makeSubDir(name);
+    }
+
+    std::shared_ptr<Directory> getParent()
+    {
+        return parent;
+    }
+
+    std::string getName()
+    {
+        return name;
+    }
+
+    void addFileSize(int size)
+    {
+        this->size += size;
+
+        if (parent != nullptr)
+        {
+            parent->addFileSize(size);
+        }
+    }
+
+    void print()
+    {
+        std::cout << "Name:\t" << name << "\n";
+        std::cout << "Size:\t" << size << "\n";
+        std::cout << "\n";
+
+        if (!children.empty())
+        {
+            for (auto child : children)
+                child->print();
+        }
+    }
+
+private:
     std::string name;
     int size;
+    std::shared_ptr<Directory> parent;
     std::vector<std::shared_ptr<Directory>> children;
+
+    std::shared_ptr<Directory> findSubDir(const std::string& name) 
+    {
+        for (auto child : children)
+        {
+            if (child->name == name)
+                return child;
+        }
+
+        return nullptr;
+    }
+
+    std::shared_ptr<Directory> makeSubDir(const std::string& name)
+    {
+        auto subdir = std::make_shared<Directory>(name);
+        subdir->parent = shared_from_this();
+        children.push_back(subdir);
+        return subdir;
+    }
+
 };
 
 
-std::shared_ptr<Directory> getDirectory(const std::string& name)
+int getFileSize(const std::string& line)
 {
-    std::shared_ptr dir = std::make_shared<Directory>();
-    dir->name = name;
-    dir->size = 0;
+    std::string tmp = line.substr(0, line.find(" "));
 
-    return dir;
+    if (tmp == "dir")
+        return 0;
+    else
+        return std::stoi(tmp);
 }
 
-
-bool isSubDir(std::shared_ptr<Directory>& dir, const std::string& name)
-{
-    // TODO.
-    return true;
-}
-
-
-void makeSubDir(std::shared_ptr<Directory>& dir, const std::string& name)
-{
-    // TODO.
-}
-
-
-std::shared_ptr<Directory> getSubDir(std::shared_ptr<Directory>& dir, const std::string& name)
-{
-    // TODO.
-    return dir;
-}
-
-
-void changeDir(std::shared_ptr<Directory>& currentDir, const std::string& dirName)
-{
-    if (!isSubDir(currentDir, dirName))
-        makeSubDir(currentDir, dirName);
-
-    currentDir = getSubDir(currentDir, dirName);
-}
 
 int main() {
 
@@ -94,33 +138,38 @@ int main() {
 
     readFile(fpath, lines);
 
-    std::shared_ptr<Directory> currentDir = getDirectory("/");
-    
+    auto root = std::make_shared<Directory>("/");
+    auto currentDir = root;
+    std::string dirName;
+    int size;
+
     for (auto line : lines)
     {
         switch (identifyInputType(line))
         {
             case InputType::cd:
-                // Get dirname.
+                dirName = getDirName(line);
 
-                // If new, add as subdirectory.
-
-                // Change to this directory.
-                changeDir(currentDir, getDirName(line));
-
+                if (dirName == "..")
+                    currentDir = currentDir->getParent();
+                else
+                    currentDir = currentDir->getSubDir(dirName);
                 break;
+
             case InputType::ls:
+                // Nothing to do.
                 break;
+
             case InputType::info:
+                size = getFileSize(line);
+                currentDir->addFileSize(size);
                 break;
+
             case InputType::unknown:
                 std::cerr << "Unrecognized input.\n";
         }
-
-        // Otherwise, terminal output.
     }
 
-
-
+    root->print();
     return 1;
 }
