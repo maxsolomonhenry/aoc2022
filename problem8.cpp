@@ -17,6 +17,7 @@ std::vector<std::vector<int>> makeIntMap(const std::vector<std::string>&);
 std::vector<std::vector<bool>> makeVisibilityMap(std::vector<std::vector<int>>, Viewpoint);
 Viewpoint getReverseView(Viewpoint);
 void rotate(std::vector<std::vector<int>>&, Viewpoint);
+void print(std::vector<std::vector<bool>>);
 
 int main() 
 {
@@ -32,10 +33,43 @@ int main()
     auto leftview = makeVisibilityMap(map, Viewpoint::left);
     auto rightview = makeVisibilityMap(map, Viewpoint::right);
     
-    // Make "visible from {left, right, up, down}" maps.
-    // Combine maps with `or`.
+    int ctr = 0;
+
+    int numRows = map.size();
+    int numCols = map[0].size();
+
+    for (int r = 0; r < numRows; ++r)
+    {
+        for (int c = 0; c < numCols; ++c)
+        {
+            bool isVisible = (
+                topview[r][c] || 
+                bottomview[r][c] || 
+                leftview[r][c] || 
+                rightview[r][c]
+            );
+
+            if (isVisible)
+                ctr++;
+        }
+    }
+
+    std::cout << "Num visible trees: " << ctr << "\n";
 
     return 1;
+}
+
+
+void print(std::vector<std::vector<bool>> visibilityMap)
+{
+    for (auto line : visibilityMap)
+    {
+        for (auto element : line)
+        {
+            std::cout << (element ? 1 : 0);
+        }
+        std::cout << "\n";
+    }
 }
 
 
@@ -58,28 +92,15 @@ std::vector<std::vector<int>> makeIntMap(const std::vector<std::string>& lines)
     return map;
 }
 
-// Viewpoint getReverseView(Viewpoint view)
-// {
-//     switch (view)
-//     {
-//         case Viewpoint::bottom:
-//             return Viewpoint::top;
-//         case Viewpoint::top:
-//             return Viewpoint::bottom;
-//         case Viewpoint::left:
-//             return Viewpoint::right;
-//         case Viewpoint::right:
-//             return Viewpoint::left;
-//     }
-// }
 
-
-template<typename T>
-std::vector<std::vector<T>> makeEmptyMap(const int& numRows, const int& numCols)
+template <typename T>
+std::vector<std::vector<T>> makeBlankMap(const int& numRows, const int& numCols)
 {
     std::vector<std::vector<T>> output;
     std::vector<T> tmp;
-    tmp.resize(numCols);
+    
+    for (int c = 0; c < numCols; ++c)
+        tmp.push_back(0);
 
     for (int r = 0; r < numRows; ++r)
         output.push_back(tmp);
@@ -88,69 +109,53 @@ std::vector<std::vector<T>> makeEmptyMap(const int& numRows, const int& numCols)
 }
 
 
-template <typename T>
-void rotate(std::vector<std::vector<T>>& map, Viewpoint view)
-{
-
-    const int numRows = map.size();
-    const int numCols = map[0].size();
-    std::vector<std::vector<T>> newMap;
-
-    switch (view)
-    {
-        case Viewpoint::top:
-            // Transpose dimensions.
-            newMap = makeEmptyMap(numCols, numRows);
-            // TODO... fill.
-            break;
-        case Viewpoint::bottom:
-            // Transpose dimensions.
-            newMap = makeEmptyMap(numCols, numRows);
-            // TODO... fill, flip etc.
-            break;
-        case Viewpoint::left:
-            // Do nothing.
-            break;
-        case Viewpoint::right:
-            for (auto& row : map)
-                std::reverse(row.begin(), row.end());
-            break;
-    }
-}
-
 std::vector<std::vector<bool>> makeVisibilityMap(std::vector<std::vector<int>> map, Viewpoint view)
 {
-
-    rotate<int>(map, view);
-
     int maxHeight;
     bool isVisible;
-    std::vector<std::vector<bool>> visibilityMap;
-    std::vector<bool> tmp;
 
     const int numRows = map.size();
     const int numCols = map[0].size();
+    std::vector<std::vector<bool>> visibilityMap = makeBlankMap<bool>(numRows, numCols);
 
-    for (int r = 0; r < numRows; ++r)
+    bool isVertical = (view == Viewpoint::bottom || view == Viewpoint::top);
+
+    int iLimit = isVertical ? numCols : numRows;
+    int jLimit = isVertical ? numRows : numCols;
+
+    if (view == Viewpoint::bottom)
+        std::reverse(map.begin(), map.end());
+
+    for (int i = 0; i < iLimit; ++i)
     {   
-        tmp.clear();
-        // Guarantee all edge trees are "visible,"" even if 0.
+        if (view == Viewpoint::right)
+            std::reverse(map[i].begin(), map[i].end());
+
+        // Guarantee all edge trees are "visible," even if 0.
         maxHeight = -1;
 
-        for (int c = 0; c < numCols; ++c)
+        for (int j = 0; j < jLimit; ++j)
         {
-            isVisible = (map[r][c] > maxHeight);
+            int& element = (isVertical ? map[j][i] : map[i][j]);
+            // bool &outElement = (isVertical ? visibilityMap[j][i] : visibilityMap[i][j]);
 
-            tmp.push_back(isVisible);
+            isVisible = (element > maxHeight);
+
+            if (isVertical)
+                visibilityMap[j][i] = isVisible;
+            else
+                visibilityMap[i][j] = isVisible;
 
             if (isVisible)
-                maxHeight = map[r][c];
+                maxHeight = element;
         }
 
-        visibilityMap.push_back(tmp);
+        if (view == Viewpoint::right)
+            std::reverse(visibilityMap[i].begin(), visibilityMap[i].end());
     }
 
-    rotate<bool>(visibilityMap, view);
+    if (view == Viewpoint::bottom)
+        std::reverse(visibilityMap.begin(), visibilityMap.end());
 
     return visibilityMap;
 }
