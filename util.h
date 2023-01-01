@@ -24,3 +24,8 @@ bool readFile(const std::string& fpath, std::vector<std::string>& lines)
 
     return true;
 }
+
+int ctoi(const char& c)
+{
+    return c - '0';
+}
