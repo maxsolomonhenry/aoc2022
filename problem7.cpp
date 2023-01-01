@@ -59,26 +59,6 @@ public:
             return makeSubDir(name);
     }
 
-    std::shared_ptr<Directory> getParent()
-    {
-        return parent;
-    }
-
-    std::vector<std::shared_ptr<Directory>> getChildren()
-    {
-        return children;
-    }
-
-    std::string getName()
-    {
-        return name;
-    }
-
-    int getSize()
-    {
-        return size;
-    }
-
     void addFileSize(int size)
     {
         this->size += size;
@@ -101,6 +81,14 @@ public:
                 child->print();
         }
     }
+
+    std::shared_ptr<Directory> getParent() { return parent; }
+
+    std::vector<std::shared_ptr<Directory>> getChildren() { return children; }
+
+    std::string getName() { return name; }
+
+    int getSize() { return size; }
 
 private:
     std::string name;
