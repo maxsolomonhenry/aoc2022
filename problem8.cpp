@@ -18,6 +18,7 @@ std::vector<std::vector<bool>> makeVisibilityMap(std::vector<std::vector<int>>, 
 Viewpoint getReverseView(Viewpoint);
 void rotate(std::vector<std::vector<int>>&, Viewpoint);
 void print(std::vector<std::vector<bool>>);
+int getScenicScore(const std::vector<std::vector<int>>&, int, int);
 
 int main() 
 {
@@ -28,6 +29,7 @@ int main()
 
     auto map = makeIntMap(lines);
 
+    // Part 1.
     auto topview = makeVisibilityMap(map, Viewpoint::top);
     auto bottomview = makeVisibilityMap(map, Viewpoint::bottom);
     auto leftview = makeVisibilityMap(map, Viewpoint::left);
@@ -56,7 +58,89 @@ int main()
 
     std::cout << "Num visible trees: " << ctr << "\n";
 
+    // Part 2.
+
+    int maxScore = 0;
+    int thisScore;
+
+    for (int x = 0; x < numRows; ++x)
+    {
+        for (int y = 0; y < numCols; ++y)
+        {
+            thisScore = getScenicScore(map, x, y);
+
+            if (thisScore > maxScore)
+                maxScore = thisScore;
+        }
+    }
+
+    std::cout << "Max scenic score: " << maxScore << "\n";
+
     return 1;
+}
+
+
+int getScenicScore(const std::vector<std::vector<int>>& map, int x, int y)
+{
+
+    int numRows = map.size();
+    int numCols = map[0].size();
+
+    bool isEdge = (x == 0 || y == 0 || x == (numRows - 1) || y == (numCols - 1));
+
+    if (isEdge)
+        return 0;
+
+    int top = 0;
+    int bottom = 0;
+    int left = 0;
+    int right = 0;
+
+    int centerHeight = map[x][y];
+
+    // Top.
+    for (int r = x - 1; r >= 0; --r)
+    {
+        top++;
+
+        int thisHeight = map[r][y];
+        if (thisHeight >= centerHeight)
+            break;
+    }
+
+    // Bottom.
+    for (int r = x + 1; r < numRows; ++r)
+    {
+        int thisHeight = map[r][y];
+        bottom++;
+
+        if (thisHeight >= centerHeight)
+            break;
+    }
+
+    // Left.
+    for (int c = y - 1; c >= 0; --c)
+    {
+        int thisHeight = map[x][c];
+        left++;
+
+        if (thisHeight >= centerHeight)
+            break;
+    }
+
+
+    // Right.
+    for (int c = y + 1; c < numCols; ++c)
+    {
+        int thisHeight = map[x][c];
+        right++;
+
+        if (thisHeight >= centerHeight)
+            break;
+    }
+
+    return (top * bottom * left * right);
+
 }
 
 
