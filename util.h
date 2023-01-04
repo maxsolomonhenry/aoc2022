@@ -29,3 +29,8 @@ int ctoi(const char& c)
 {
     return c - '0';
 }
+
+int sign(int x)
+{
+    return (x > 0) - (x < 0);
+}
