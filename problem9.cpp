@@ -143,14 +143,25 @@ protected:
 
 };
 
+std::vector<Knot> makeRope(const int& numKnots)
+{
+    std::vector<Knot> rope;
+
+    for (int i = 0; i < numKnots; ++i){
+        rope.push_back(Knot());
+    }
+
+    return rope;
+}
+
 int main() 
 {
     const std::string fpath = "input/9.txt";
     std::vector<std::string> lines;
     readFile(fpath, lines);
 
-    Knot head;
-    Knot tail;
+    const int kNumKnots = 10;
+    std::vector<Knot> rope = makeRope(kNumKnots);
 
     for (auto line : lines)
     {
@@ -158,12 +169,14 @@ int main()
 
         for (int i = 0; i < numSteps; ++i)
         {
-            head.move(aim);
-            tail.react(head);
+            rope[0].move(aim);
+            for (int j = 1; j < rope.size(); ++j)
+                rope[j].react(rope[j - 1]);
         }
     }
 
-    std::cout << "Part 1 -> Num unique tail spots: " << tail.getLog().size() << "\n";
+    std::cout << "Part 1 -> Num unique spots: " << rope[1].getLog().size() << "\n";
+    std::cout << "Part 2 -> Num unique spots: " << rope.back().getLog().size() << "\n";
 
     return 1;
 }
