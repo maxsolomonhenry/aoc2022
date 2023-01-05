@@ -56,10 +56,10 @@ std::ostream& operator<< (std::ostream& os, const Place& place)
     return os;
 }
 
-class Rope {
+class Knot {
 public:
 
-    Rope()
+    Knot()
     {
         x = 0;
         y = 0;
@@ -73,28 +73,6 @@ public:
     int getX() { return x; }
     int getY() { return y; }
 
-protected:
-    int x;
-    int y;
-    std::vector<Place> log;
-
-    void updateLog()
-    {
-        Place newPlace(x, y);
-
-        for (auto place : log)
-        {
-            if (place == newPlace)
-                return;
-        }
-
-        log.push_back(newPlace);
-    }
-};
-
-class Head : public Rope
-{
-public:
     void move(Aim aim)
     {
 
@@ -119,12 +97,8 @@ public:
 
         updateLog();
     }
-};
-
-class Tail : public Rope
-{
-public:
-    void react(Head head)
+    
+    void react(Knot head)
     {
 
         int diffX = head.getX() - x;
@@ -149,8 +123,25 @@ public:
         updateLog();
     }
 
-};
+protected:
+    int x;
+    int y;
+    std::vector<Place> log;
 
+    void updateLog()
+    {
+        Place newPlace(x, y);
+
+        for (auto place : log)
+        {
+            if (place == newPlace)
+                return;
+        }
+
+        log.push_back(newPlace);
+    }
+
+};
 
 int main() 
 {
@@ -158,9 +149,8 @@ int main()
     std::vector<std::string> lines;
     readFile(fpath, lines);
 
-    Head head;
-    Tail tail;
-
+    Knot head;
+    Knot tail;
 
     for (auto line : lines)
     {
@@ -173,7 +163,7 @@ int main()
         }
     }
 
-    std::cout << "Num unique tail spots: " << tail.getLog().size() << "\n";
+    std::cout << "Part 1 -> Num unique tail spots: " << tail.getLog().size() << "\n";
 
     return 1;
 }
