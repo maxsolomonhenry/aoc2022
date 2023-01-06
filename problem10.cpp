@@ -29,26 +29,46 @@ int main()
 
     int totalStrength = 0;
     int ctrCycles = 0;
-    int rx = 1;
+    int registerX = 1;
+
+    int spritePosition = 0;
+    bool isDrawing = false;
+    std::string outputBuffer;
+    char pixel;
 
     for (auto line : lines) {
         auto [numCycles, valToAdd] = parseInstruction(line);
 
-        for (int i = 0; i < numCycles; ++i)
-        {
-            ctrCycles++;
+        for (int i = 0; i < numCycles; ++i) {
 
-            if ((ctrCycles % 40) - 20 == 0) {
-                std::cout << "ctrCycles: " << ctrCycles << "\n";
-                totalStrength += ctrCycles * rx;
+            isDrawing = (
+                (spritePosition == registerX) || 
+                (spritePosition == (registerX - 1)) ||
+                (spritePosition == (registerX + 1))
+            );
+
+            pixel = isDrawing ? '#' : '.';
+            outputBuffer += pixel;
+
+            ctrCycles++;
+            spritePosition = (ctrCycles % 40);
+
+            if (spritePosition == 39){
+                std::cout << outputBuffer << "\n";
+                outputBuffer.clear();
             }
 
+            // Part 1.
+            if ((ctrCycles % 40) - 20 == 0)
+                totalStrength += ctrCycles * registerX;
         }
-        
-        rx += valToAdd;
+
+        registerX += valToAdd;
     }
 
-    std::cout << "totalStrength: " << totalStrength << "\n";
+    std::cout << "(Part 1) totalStrength: " << totalStrength << "\n";
 
     return 0;
 }
+
+
