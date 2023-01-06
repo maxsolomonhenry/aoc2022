@@ -59,7 +59,7 @@ std::ostream& operator<< (std::ostream& os, const Place& place)
 class Knot {
 public:
 
-    Knot()
+    Knot(bool isLogging = true) : isLogging(isLogging)
     {
         x = 0;
         y = 0;
@@ -72,6 +72,7 @@ public:
 
     int getX() { return x; }
     int getY() { return y; }
+    void setIsLogging(bool val) { isLogging = val; };
 
     void move(Aim aim)
     {
@@ -123,13 +124,17 @@ public:
         updateLog();
     }
 
-protected:
+private:
     int x;
     int y;
     std::vector<Place> log;
+    bool isLogging;
 
     void updateLog()
     {
+        if (!isLogging)
+            return;
+
         Place newPlace(x, y);
 
         for (auto place : log)
@@ -147,9 +152,8 @@ std::vector<Knot> makeRope(const int& numKnots)
 {
     std::vector<Knot> rope;
 
-    for (int i = 0; i < numKnots; ++i){
-        rope.push_back(Knot());
-    }
+    for (int i = 0; i < numKnots; ++i)
+        rope.emplace_back();
 
     return rope;
 }
@@ -162,6 +166,9 @@ int main()
 
     const int kNumKnots = 10;
     std::vector<Knot> rope = makeRope(kNumKnots);
+
+    rope[1].setIsLogging(true);
+    rope.back().setIsLogging(true);
 
     for (auto line : lines)
     {
